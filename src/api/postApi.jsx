@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080/api/v1";
+const BASE_URL = "http://15.165.75.132:8080/api/v1";
 
 export const fetchPosts = async () => {
   try {
