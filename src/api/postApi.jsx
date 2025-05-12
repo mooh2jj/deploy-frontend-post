@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const BASE_URL = "http://15.165.75.132:8080/api/v1";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+console.log("BASE_URL", BASE_URL);
 
 export const fetchPosts = async () => {
   try {
