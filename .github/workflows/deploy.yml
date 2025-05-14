@@ -1,0 +1,110 @@
+name: Deploy Vite React App To EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Github Repository 파일 불러오기
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v3
+        with:
+          node-version: "19"
+
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.REACT_ENV_FILE }}" > .env.production
+
+      - name: 의존성 설치
+        run: npm i --force
+
+      - name: Vite 빌드
+        run: |
+          export CI=false  # ESLint 경고를 무시하고 빌드를 진행
+          npm run build
+
+      - name: 빌드 결과물 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: dist/
+          retention-days: 1
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      REPOSITORY_NAME: deploy-frontend-post
+
+    steps:
+      - name: 빌드 결과물 다운로드
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: dist
+
+      - name: 빌드 디렉토리 압축
+        run: |
+          sudo apt-get update && sudo apt-get install -y zip
+          sudo zip -r dist.zip dist
+
+      - name: EC2 디렉토리 권한 설정
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            mkdir -p /home/ubuntu/${{ env.REPOSITORY_NAME }}
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/${{ env.REPOSITORY_NAME }}
+            sudo chmod -R 775 /home/ubuntu/${{ env.REPOSITORY_NAME }}
+
+      - name: SSH로 EC2에 접속하고 빌드 파일 전송
+        uses: burnett01/rsync-deployments@6.0.0
+        with:
+          switches: -avzr --delete
+          path: dist.zip
+          remote_path: /home/ubuntu/${{ env.REPOSITORY_NAME }}/
+          remote_host: ${{ secrets.EC2_HOST }}
+          remote_user: ${{ secrets.EC2_USERNAME }}
+          remote_key: ${{ secrets.EC2_PRIVATE_KEY }}
+
+      - name: SSH로 EC2에 접속하고 배포 진행
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true # 이전에 실행중인 스크립트 중지
+          script: |
+            cd /home/ubuntu/${{ env.REPOSITORY_NAME }}
+            # 권한 재설정
+            sudo chown -R ubuntu:ubuntu .
+
+            # unzip 설치
+            sudo apt-get update
+            sudo apt-get install -y unzip
+
+            # 기존 빌드 디렉토리 삭제 및 압축 해제
+            sudo rm -rf dist
+            sudo unzip -o dist.zip
+            sudo rm dist.zip
+            sudo chown -R ubuntu:ubuntu dist
+
+            # PM2 설치 확인 및 서버 재시작
+            if ! command -v pm2 &> /dev/null; then
+              echo "PM2가 설치되어 있지 않습니다. 설치를 진행합니다."
+              sudo npm install -g pm2
+            fi
+
+            # PM2로 서버 재시작
+            pm2 delete user || true  # user라는 이름의 프로세스가 없어도 에러 없이 진행
+            pm2 serve dist 3000 --spa
