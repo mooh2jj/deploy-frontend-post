@@ -106,5 +106,5 @@ jobs:
             fi
 
             # PM2로 서버 재시작
-            pm2 delete spa || true  # user라는 이름의 프로세스가 없어도 에러 없이 진행
-            pm2 serve dist 3000 --spa
+            pm2 delete frontend-post || true  # user라는 이름의 프로세스가 없어도 에러 없이 진행
+            pm2 serve dist 3000 --name frontend-post
