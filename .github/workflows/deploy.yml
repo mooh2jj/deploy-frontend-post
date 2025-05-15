@@ -39,7 +39,6 @@ jobs:
         with:
           name: build-artifact
           path: dist/
-          retention-days: 1
 
   deploy:
     needs: build
