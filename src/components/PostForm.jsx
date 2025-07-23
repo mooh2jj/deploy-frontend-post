@@ -11,10 +11,12 @@ import {
   Alert,
 } from "@mui/material";
 import { createPost, fetchPostById, updatePost } from "../api/postApi";
+import { useSnackbar } from "../context/SnackbarContext";
 
 const PostForm = ({ isEditing }) => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { showSnackbar } = useSnackbar();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -75,18 +77,21 @@ const PostForm = ({ isEditing }) => {
       if (isEditing) {
         // 게시물 수정
         await updatePost(id, formData);
+        showSnackbar("게시물이 성공적으로 수정되었습니다.", "success");
         navigate(`/posts/${id}`);
       } else {
         // 새 게시물 작성
-        const postId = await createPost(formData);
+        const newPostId = await createPost(formData);
+        showSnackbar("새 게시물이 성공적으로 등록되었습니다.", "success");
         navigate("/");
       }
     } catch (error) {
-      setError(
-        isEditing
-          ? "게시물 수정 중 오류가 발생했습니다."
-          : "게시물 작성 중 오류가 발생했습니다."
-      );
+      const errorMessage = isEditing
+        ? "게시물 수정 중 오류가 발생했습니다."
+        : "게시물 작성 중 오류가 발생했습니다.";
+
+      setError(errorMessage);
+      showSnackbar(errorMessage, "error");
       console.error(error);
     } finally {
       setSubmitting(false);

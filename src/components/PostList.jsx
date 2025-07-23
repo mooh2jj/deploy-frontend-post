@@ -13,20 +13,35 @@ import {
   Chip,
   Button,
   Fab,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  CircularProgress,
 } from "@mui/material";
 import {
   AccessTime as AccessTimeIcon,
   ArrowForward as ArrowForwardIcon,
   Add as AddIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
 } from "@mui/icons-material";
-import { fetchPosts } from "../api/postApi";
+import { fetchPosts, deletePost } from "../api/postApi";
+import { useSnackbar } from "../context/SnackbarContext";
 
 const PostList = () => {
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
+  // 게시물 목록 불러오기
   useEffect(() => {
     const getPosts = async () => {
       try {
@@ -36,6 +51,7 @@ const PostList = () => {
         setError(null);
       } catch (error) {
         setError("포스트를 불러오는 중 오류가 발생했습니다.");
+        showSnackbar("포스트를 불러오는 중 오류가 발생했습니다.", "error");
         console.error(error);
       } finally {
         setLoading(false);
@@ -43,7 +59,32 @@ const PostList = () => {
     };
 
     getPosts();
-  }, []);
+  }, [showSnackbar]);
+
+  // 게시물 삭제 처리
+  const handleDeleteClick = (post) => {
+    setPostToDelete(post);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!postToDelete) return;
+
+    try {
+      setDeleting(true);
+      await deletePost(postToDelete.id);
+      setPosts(posts.filter((post) => post.id !== postToDelete.id));
+      showSnackbar("게시물이 성공적으로 삭제되었습니다.", "success");
+    } catch (error) {
+      setError("게시물 삭제 중 오류가 발생했습니다.");
+      showSnackbar("게시물 삭제 중 오류가 발생했습니다.", "error");
+      console.error(error);
+    } finally {
+      setDeleting(false);
+      setDeleteDialogOpen(false);
+      setPostToDelete(null);
+    }
+  };
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString) => {
@@ -226,10 +267,27 @@ const PostList = () => {
                   <Box
                     sx={{
                       display: "flex",
-                      justifyContent: "flex-end",
+                      justifyContent: "space-between",
+                      alignItems: "center",
                       mt: 1,
                     }}
                   >
+                    <Box>
+                      <IconButton
+                        size="small"
+                        color="primary"
+                        onClick={() => navigate(`/edit/${post.id}`)}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDeleteClick(post)}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
                     <Button
                       size="small"
                       color="primary"
@@ -262,6 +320,37 @@ const PostList = () => {
       >
         <Typography variant="caption">Created by codingdonny</Typography>
       </Box>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => !deleting && setDeleteDialogOpen(false)}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title">게시물 삭제</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description">
+            이 게시물을 정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            disabled={deleting}
+          >
+            취소
+          </Button>
+          <Button
+            onClick={handleDelete}
+            color="error"
+            disabled={deleting}
+            autoFocus
+          >
+            {deleting ? <CircularProgress size={24} /> : "삭제"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

@@ -21,10 +21,12 @@ import {
   Delete as DeleteIcon,
 } from "@mui/icons-material";
 import { fetchPostById, deletePost } from "../api/postApi";
+import { useSnackbar } from "../context/SnackbarContext";
 
 const PostDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
 
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -69,9 +71,11 @@ const PostDetail = () => {
       setDeleting(true);
       await deletePost(id);
       setDeleteDialogOpen(false);
+      showSnackbar("게시물이 성공적으로 삭제되었습니다.", "success");
       navigate("/");
     } catch (error) {
       setError("게시물 삭제 중 오류가 발생했습니다.");
+      showSnackbar("게시물 삭제 중 오류가 발생했습니다.", "error");
       console.error(error);
       setDeleteDialogOpen(false);
     } finally {
