@@ -160,13 +160,29 @@ const PostList = () => {
           sx={{
             p: 4,
             textAlign: "center",
-            bgcolor: "#f8f8f8",
-            border: "1px solid #eeeeee",
+            bgcolor: "transparent",
+            border: "none",
+            boxShadow: "none",
           }}
         >
-          <Typography variant="body1" color="text.secondary">
-            등록된 포스트가 없습니다.
+          <img
+            src="/codingdonny.png"
+            alt="메인 캐릭터"
+            style={{
+              maxWidth: "200px",
+              marginBottom: "16px",
+              filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.1))",
+            }}
+          />
+          <Typography variant="h6" color="text.secondary">
+            아직 등록된 포스트가 없어요!
           </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+            첫 번째 포스트를 작성해보세요.
+          </Typography>
+          <Button variant="contained" onClick={() => navigate("/new")}>
+            새 포스트 작성하기
+          </Button>
         </Paper>
       ) : (
         <List sx={{ width: "100%", bgcolor: "background.paper", p: 0 }}>

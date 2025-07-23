@@ -90,24 +90,35 @@ function App() {
           >
             <AppBar position="static" elevation={1} sx={{ mb: 2 }}>
               <Toolbar>
-                <ArticleIcon
-                  sx={{ mr: 2, color: "primary.main" }}
-                  component={Link}
-                  to="/"
-                />
-                <Typography
-                  variant="h6"
+                <Box
                   component={Link}
                   to="/"
                   sx={{
-                    flexGrow: 1,
-                    fontWeight: "500",
-                    color: "primary.main",
+                    display: "flex",
+                    alignItems: "center",
                     textDecoration: "none",
+                    flexGrow: 1,
                   }}
                 >
-                  포스트 애플리케이션
-                </Typography>
+                  <img
+                    src="/codingdonny.png"
+                    alt="메인 캐릭터"
+                    style={{
+                      height: "40px",
+                      marginRight: "12px",
+                      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
+                    }}
+                  />
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: "500",
+                      color: "primary.main",
+                    }}
+                  >
+                    포스트 애플리케이션
+                  </Typography>
+                </Box>
               </Toolbar>
             </AppBar>
             <Container component="main" sx={{ mt: 2, mb: 4, flex: 1 }}>
