@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -11,15 +12,17 @@ import {
   ListItemText,
   Chip,
   Button,
-  IconButton,
+  Fab,
 } from "@mui/material";
 import {
   AccessTime as AccessTimeIcon,
   ArrowForward as ArrowForwardIcon,
+  Add as AddIcon,
 } from "@mui/icons-material";
 import { fetchPosts } from "../api/postApi";
 
 const PostList = () => {
+  const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -82,7 +85,7 @@ const PostList = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="md" sx={{ py: 4, position: "relative" }}>
       <Typography
         variant="h5"
         component="h1"
@@ -96,6 +99,20 @@ const PostList = () => {
       >
         포스트 목록
       </Typography>
+
+      {/* 새 게시물 작성 버튼 */}
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => navigate("/new")}
+        sx={{
+          position: "absolute",
+          bottom: 16,
+          right: 16,
+        }}
+      >
+        <AddIcon />
+      </Fab>
 
       {posts.length === 0 ? (
         <Paper
@@ -217,6 +234,7 @@ const PostList = () => {
                       size="small"
                       color="primary"
                       endIcon={<ArrowForwardIcon />}
+                      onClick={() => navigate(`/posts/${post.id}`)}
                       sx={{
                         textTransform: "none",
                         fontSize: "0.8rem",
