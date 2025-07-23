@@ -125,6 +125,13 @@ function App() {
             <Typography variant="body2" color="text.secondary">
               © {new Date().getFullYear()} 포스트 애플리케이션
             </Typography>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ display: "block", mt: 0.5 }}
+            >
+              Created by codingdonny
+            </Typography>
           </Box>
         </Box>
       </BrowserRouter>

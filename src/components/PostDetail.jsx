@@ -197,6 +197,19 @@ const PostDetail = () => {
         >
           {post.content}
         </Typography>
+
+        <Box
+          sx={{
+            textAlign: "right",
+            mt: 3,
+            pt: 2,
+            borderTop: "1px solid #eaeaea",
+          }}
+        >
+          <Typography variant="caption" color="text.secondary">
+            Created by codingdonny
+          </Typography>
+        </Box>
       </Paper>
 
       {/* 삭제 확인 다이얼로그 */}

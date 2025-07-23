@@ -249,6 +249,19 @@ const PostList = () => {
           ))}
         </List>
       )}
+
+      <Box
+        sx={{
+          textAlign: "center",
+          mt: 4,
+          pt: 2,
+          borderTop: "1px solid #eaeaea",
+          color: "text.secondary",
+          fontSize: "0.75rem",
+        }}
+      >
+        <Typography variant="caption">Created by codingdonny</Typography>
+      </Box>
     </Container>
   );
 };

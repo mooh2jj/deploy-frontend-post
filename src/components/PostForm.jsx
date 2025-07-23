@@ -163,6 +163,19 @@ const PostForm = ({ isEditing }) => {
               )}
             </Button>
           </Box>
+
+          <Box
+            sx={{
+              textAlign: "right",
+              mt: 3,
+              pt: 2,
+              borderTop: "1px solid #eaeaea",
+            }}
+          >
+            <Typography variant="caption" color="text.secondary">
+              Created by codingdonny
+            </Typography>
+          </Box>
         </Box>
       </Paper>
     </Container>
